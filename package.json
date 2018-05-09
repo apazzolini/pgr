@@ -1,0 +1,34 @@
+{
+    "name": "pgr",
+    "version": "0.1.0",
+    "description": "A wrapper for pg",
+    "main": "dist/index.js",
+    "author": "Andre Azzolini (apazzolini)",
+    "license": "MIT",
+    "dependencies": {
+        "bluebird": "3.5.1",
+        "dedent": "0.7.0",
+        "lodash": "4.17.10",
+        "pg": "7.4.3",
+        "pg-format": "1.0.4",
+        "pg-native": "3.0.0"
+    },
+    "scripts": {
+        "test:watch": "jest --watch"
+    },
+    "devDependencies": {
+        "babel-cli": "6.26.0",
+        "babel-core": "6.26.3",
+        "babel-eslint": "8.2.3",
+        "babel-jest": "22.4.3",
+        "babel-plugin-transform-class-properties": "6.24.1",
+        "babel-plugin-transform-object-rest-spread": "6.26.0",
+        "babel-preset-env": "1.6.1",
+        "eslint": "4.19.1",
+        "eslint-config-airbnb-base": "12.1.0",
+        "eslint-plugin-import": "2.11.0",
+        "eslint-plugin-jest": "21.15.1",
+        "eslint-plugin-promise": "3.7.0",
+        "jest": "22.4.3"
+    }
+}
