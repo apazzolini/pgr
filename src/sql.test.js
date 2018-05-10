@@ -57,4 +57,11 @@ describe('sql', () => {
         expect(sql`SELECT * FROM a WHERE 1 = 1 ${sql.raw(childExpr)}`)
             .toEqual("SELECT * FROM a WHERE 1 = 1 AND id = '2'")
     })
+
+    test("raw expressions don't help against SQL injection", () => {
+        const name = "Robert'); DROP TABLE Students; --"
+
+        expect(sql`SELECT * FROM oh_no WHERE name IN ('${sql.raw(name)}')`)
+            .toEqual("SELECT * FROM oh_no WHERE name IN ('Robert'); DROP TABLE Students; --')")
+    })
 })
