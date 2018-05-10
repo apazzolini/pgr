@@ -1,6 +1,4 @@
-const sql = require('./sql.js')
-const query = require('./query.js')
-const { createPool, getPool } = require('./pool.js')
+const { sql, query, createPool, getPool } = require('./index.js')
 const { setupTestDb, teardownTestDb } = require('../test/helper.js')
 
 describe('query', () => {

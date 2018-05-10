@@ -1,4 +1,4 @@
-const { createPool, getPool } = require('./pool.js')
+const { createPool, getPool } = require('./index.js')
 
 describe('pool', () => {
     test('creates a pool', () => {

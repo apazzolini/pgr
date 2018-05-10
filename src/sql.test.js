@@ -1,4 +1,4 @@
-const sql = require('./sql.js')
+const { sql } = require('./index.js')
 
 describe('sql', () => {
     test('formats statements that have no parameters', () => {
