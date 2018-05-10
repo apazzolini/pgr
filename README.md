@@ -1,6 +1,6 @@
 # pgr
 
-This module aims to provide a structured and easy way to execute queries against a Postgres DB. It's a good fit if you want more support than using the `pg` module by itself but don't want to use an ORM. Its main features include a tagged template string based query helper and a small wrapper around `pg`'s actual query methods.
+This module aims to provide a structured and easy way to execute queries against a Postgres DB. It's a good fit if you want more support than using the [pg](https://github.com/brianc/node-postgres) module by itself but don't want to use an ORM. Its main features include a tagged template string based query helper and a small wrapper around pg's actual query methods.
 
 ## Installation
 
@@ -72,6 +72,8 @@ FROM users
 WHERE status = 'active'
     AND id = '73'
 ```
+
+> Your variable will get subbed in for the question mark in your expression. If there is no question mark, the variable will be used to test if the expression should be added as-is.
 
 ```js
 await findUsers({ accountId: 1, roles: ['admin', 'superadmin'] })
@@ -195,13 +197,17 @@ console.log(currentUserEmail) // 'apazzolini@test.test'
 
 ### query.transaction
 
-You can also run multiple queries inside of a transaction: 
+You can also run multiple queries inside of a transaction:
 
 ```js
 const result = await query.transaction(async tquery => {
-    // Inside this function, you should take care to use tquery instead of query 
-    // or you may run into deadlocks. 
+    // Inside this function, you should take care to use tquery instead of query
+    // or you may run into deadlocks.
 
     // tquery behaves exactly like query (and also has tquery.one)
 })
 ```
+
+## License
+
+MIT
