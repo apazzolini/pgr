@@ -187,13 +187,8 @@ const knownEmails = await query(sql`SELECT email FROM users`, {
 Invoked exactly like `query`, except that instead of returning an array of rows, it will return one object. If your query results in no rows, it will return a null. If your query returns more than one row, it will throw an Error. You can also use rowMapper here.
 
 ```js
-const currentUserEmail = await query(sql`
-    SELECT email FROM users WHERE id = ${currentUserId}
-`, {
-    rowMapper: row => row.email,
-})
-
-console.log(currentUserEmail) // 'apazzolini@test.test'
+const { email } = await query(sql`SELECT email FROM users WHERE id = ${currentUserId}`)
+console.log(email) // 'apazzolini@test.test'
 ```
 
 ### query.transaction
