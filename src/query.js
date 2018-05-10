@@ -52,7 +52,6 @@ query.transaction = async (cb, opts = {}) => {
         await client.query('COMMIT')
         return res
     } catch (e) {
-        console.error('QUERY ERROR: Rolling back transaction', e)
         await client.query('ROLLBACK')
         throw e
     } finally {
