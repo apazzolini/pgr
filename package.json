@@ -4,6 +4,10 @@
     "description": "A wrapper for pg",
     "main": "src/index.js",
     "author": "Andre Azzolini (apazzolini)",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/apazzolini/pgr.git"
+    },
     "license": "MIT",
     "dependencies": {
         "dedent": "0.7.0",
