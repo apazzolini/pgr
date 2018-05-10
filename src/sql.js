@@ -1,5 +1,7 @@
-import dedent from 'dedent'
-import { flatten, zip } from 'lodash'
+const dedent = require('dedent')
+const flatten = require('lodash/flatten')
+const zip = require('lodash/zip')
+const pgformat = require('pg-format')
 
 class ConditionalExpr {
     constructor(...args) {
@@ -10,58 +12,62 @@ class ConditionalExpr {
             return this
         }
 
-        this.test = args[1] // eslint-disable-line prefer-destructuring
-        this.expr = args[0] // eslint-disable-line prefer-destructuring
-        this.arg = args[1] // eslint-disable-line prefer-destructuring
+        this.test = this.arg = args[1]
+        this.expr = args[0]
     }
 
-    include() {
+    shouldInclude() {
         if (Array.isArray(this.test) && this.test.length === 0) return false
         return this.test || this.test === 0
+    }
+}
+
+class RawExpr {
+    constructor(str) {
+        this.str = str
     }
 }
 
 const format = text =>
     dedent(text)
         .split('\n')
-        .filter(l => !/^\s*$/.test(l))
+        .filter(l => !/^\s*$/.test(l)) // filter out lines that are only whitespace
         .join('\n')
 
 const sql = (strings, ...args) => {
     if (args.length === 0) {
-        return {
-            text: format(strings.join(' ')),
-            values: [],
-        }
+        return format(strings.join(' '))
     }
 
     let text = ''
-    let curIdx = 1
     const values = []
 
-    const parts = flatten(zip(strings, args))
-
-    parts.forEach((part, idx) => {
+    flatten(zip(strings, args)).forEach((part, idx) => {
         const isLiteral = idx % 2 === 0
 
         if (isLiteral) {
             text += part
         } else if (part && part instanceof ConditionalExpr) {
-            if (part.include()) {
-                text += `${part.expr.replace('?', `$${curIdx++}`)}`
-                values.push(part.arg)
+            if (part.shouldInclude()) {
+                if (part.expr.includes('?')) {
+                    text += `${part.expr.replace('?', '%L')}`
+                    values.push(part.arg)
+                } else {
+                    text += part.expr
+                }
             }
+        } else if (part && part instanceof RawExpr) {
+            text += part.str
         } else if (typeof part !== 'undefined') {
-            text += `$${curIdx++}`
+            text += '%L'
             values.push(part)
         }
     })
 
-    return {
-        text: format(text),
-        values,
-    }
+    return format(pgformat(text, ...values))
 }
 
-sql.if = (expr, maybeVal) => new ConditionalExpr(expr, maybeVal)
-export default sql
+sql.if = (...args) => new ConditionalExpr(...args)
+sql.raw = str => new RawExpr(str)
+
+module.exports = sql

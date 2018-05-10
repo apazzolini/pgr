@@ -1,4 +1,4 @@
-import { createPool, getPool } from './pool.js'
+const { createPool, getPool } = require('./pool.js')
 
 describe('pool', () => {
     test('creates a pool', () => {

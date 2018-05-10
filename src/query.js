@@ -1,22 +1,25 @@
-import pgformat from 'pg-format'
-import { getPool } from './pool.js'
+const { getPool } = require('./pool.js')
 
-export const format = ({ text, values }) => {
-    const formattableText = text.replace(/\$\d+/g, '%L')
-    return pgformat(formattableText, ...values)
-}
-
-const execQuery = async (transport, { text, values }, opts) => {
+const execQuery = async (transport, statement, opts) => {
     const { debug, debugOnly, rowMapper } = opts
 
     if (debug || debugOnly) {
-        console.log(format({ text, values }))
+        console.log(statement)
         if (debugOnly) return
     }
 
-    const { rows } = await transport(text, values)
-    if (rowMapper) return rows.map(rowMapper)
-    return rows
+    try {
+        const res = await transport(statement)
+        const { rows } = res
+        if (rowMapper) return rows.map(rowMapper)
+        return rows
+    } catch (e) {
+        if (e.code === '42601') {
+            console.error(`QUERY ERROR: Syntax error:\n${statement}`)
+        }
+
+        throw e
+    }
 }
 
 execQuery.one = async (transport, q, opts) => {
@@ -41,15 +44,20 @@ query.transaction = async (cb, opts = {}) => {
     const client = await pool.connect()
 
     try {
-        const tquery = (q, o) => execQuery(client.query.bind(client), q, o)
-        tquery.one = (q, o) => execQuery.one(client.query.bind(client), q, o)
+        const tquery = async (q, o = {}) => execQuery(client.query.bind(client), q, o)
+        tquery.one = async (q, o = {}) => execQuery.one(client.query.bind(client), q, o)
 
-        return await cb(tquery)
+        await client.query('BEGIN')
+        const res = await cb(tquery)
+        await client.query('COMMIT')
+        return res
     } catch (e) {
-        console.error(e)
+        console.error('QUERY ERROR: Rolling back transaction', e)
+        await client.query('ROLLBACK')
+        throw e
     } finally {
         client.release()
     }
 }
 
-export default query
+module.exports = query

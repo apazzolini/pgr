@@ -1,78 +1,71 @@
-import sql from './sql.js'
-import query, { format } from './query.js'
-import { createPool } from './pool.js'
+const sql = require('./sql.js')
+const query = require('./query.js')
+const { createPool, getPool } = require('./pool.js')
+const { setupTestDb, teardownTestDb } = require('../test/helper.js')
 
 describe('query', () => {
-    describe('format', () => {
-        test('works with no values', () => {
-            expect(format({
-                text: 'SELECT * FROM a',
-                values: [],
-            })).toEqual('SELECT * FROM a')
-        })
-
-        test('converts $ placeholders to %L and parses', () => {
-            expect(format({
-                text: 'SELECT * FROM a WHERE x = $1 OR y = $2',
-                values: ['val1', 'val2'],
-            })).toEqual("SELECT * FROM a WHERE x = 'val1' OR y = 'val2'")
-        })
-
-        test('escapes strings', () => {
-            expect(format({
-                text: 'SELECT * FROM a WHERE x = $1',
-                values: ["'; drop tables --"],
-            })).toEqual("SELECT * FROM a WHERE x = '''; drop tables --'")
-        })
-    })
-
     describe('runner', () => {
-        beforeAll(() => {
+        beforeAll(async () => {
+            const db = await setupTestDb()
             createPool('default', {
-                user: 'Andre',
-                host: 'localhost',
-                database: 'pubgsh',
-                password: '',
+                user: process.env.PGUSER,
+                host: process.env.PGHOST,
+                password: process.env.PGPASSWORD,
+                database: db,
             })
+        })
+
+        afterAll(async () => {
+            await getPool('default').end()
+            await teardownTestDb()
         })
 
         test('runs a query', async () => {
-            const res = await query(sql`SELECT * FROM players`)
-            console.log(res[0].id)
+            const res = await query(sql`SELECT * FROM one`)
+            expect(res).toEqual([{ id: 'a', name: 'aaa' }, { id: 'b', name: 'bbb' }])
         })
 
         test('runs a one query', async () => {
-            const id = 'account.6ea3d4f285d2411581164ab56761a9fd'
-            const res = await query.one(sql`
-                SELECT * FROM players
-                WHERE 2 = 2
-                   ${sql.if('AND id = ANY(?)', [id])}
-                  AND 1 = 1
-            `, { debug: true })
+            const res = await query.one(sql`SELECT name FROM one WHERE id = ${'a'}`)
+            expect(res).toEqual({ name: 'aaa' })
+        })
 
-            console.log('wow', res.name)
+        test('throws an error if a one query returns more than one result', async () => {
+            const resPromise = query.one(sql`SELECT * FROM one WHERE id IN (${'a'}, ${'b'})`)
+            await expect(resPromise).rejects.toBeDefined()
+        })
+
+        test('maps rows with a provided function', async () => {
+            const res = await query(sql`SELECT * FROM one`, {
+                rowMapper: row => row.name,
+            })
+            expect(res).toEqual(['aaa', 'bbb'])
+        })
+
+        test('maps rows with a provided function for one queries', async () => {
+            const res = await query.one(sql`SELECT * FROM one WHERE id = ${'a'}`, {
+                rowMapper: row => row.name,
+            })
+            expect(res).toEqual('aaa')
         })
 
         test('runs a transaction query', async () => {
+            expect.assertions(4)
+
             const res = await query.transaction(async tquery => {
-                const a = await tquery(sql`
-                    SELECT * FROM players
-                `, {
-                    rowMapper: row => row.id.toUpperCase(),
-                })
+                await tquery(sql`INSERT INTO one VALUES ('c', 'ccc')`)
 
-                const b = await tquery.one(sql`
-                    SELECT * FROM players
-                `, {
-                    rowMapper: row => row.id.toUpperCase(),
-                })
+                // If a different query uses a different client, they shouldn't see this new row
+                expect(await query(sql`SELECT * FROM one`)).toHaveLength(2)
 
-                console.log(a[0], b)
+                // This client (tquery) should see the row though
+                expect(await tquery(sql`SELECT * FROM one`)).toHaveLength(3)
 
-                return 'x'
+                return 'ok'
             })
 
-            console.log(res)
+            expect(res).toBe('ok')
+            expect(await query(sql`SELECT * FROM one`)).toHaveLength(3)
         })
     })
 })

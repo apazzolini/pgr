@@ -1,8 +1,8 @@
-import { Pool } from 'pg'
+const { Pool } = require('pg')
 
 const registeredPools = {}
 
-export const createPool = (name, config) => {
+const createPool = (name, config) => {
     const pool = new Pool(config)
 
     pool.on('error', (err, client) => {
@@ -14,11 +14,16 @@ export const createPool = (name, config) => {
     return true
 }
 
-export const getPool = name => {
+const getPool = name => {
     if (typeof name === 'undefined' && Object.keys(registeredPools).length === 1) {
         [name] = Object.keys(registeredPools) // eslint-disable-line no-param-reassign
     }
 
     if (!registeredPools[name]) throw Error(`Unknown pool [${name}]`)
     return registeredPools[name]
+}
+
+module.exports = {
+    createPool,
+    getPool,
 }
