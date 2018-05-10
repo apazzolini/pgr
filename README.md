@@ -51,8 +51,8 @@ I find that I often want to dynamically construct my statements based on the tru
 ```js
 import { query, sql } from 'pgr'
 
-const findUsers = async ({ id, accountId, emails, roles }) => {
-    return query(sql`
+const findUsers = async ({ id, accountId, emails, roles }) =>
+    query(sql`
         SELECT *
         FROM users
         WHERE status = 'active'
@@ -60,7 +60,6 @@ const findUsers = async ({ id, accountId, emails, roles }) => {
             ${sql.if('AND email = ?', email)}
             ${sql.if('AND role IN (?)', roles)}
     `)
-}
 ```
 
 ```js
@@ -171,14 +170,14 @@ WHERE name IN ('Robert'); DROP TABLE Students; --')
 We've seen the most simple form of query, but it can also take a second `options` argument:
 
 ```js
-const rows = query(sql`SELECT ...`, {
-    debug: false, // If true, logs the statement to the console before running it
-    debugOnly: false, // If true, logs the statement to the console and does NOT run it
-    poolName: '', // If set, runs the query with a client of the specified pool name
+const rows = await query(sql`SELECT ...`, {
+    debug: false, // Logs the statement to the console before running it
+    debugOnly: false, // Logs the statement to the console and does NOT run it
+    poolName: '', // Runs the query with a client of the specified pool name
     rowMapper: row => {}, // A (synchronous) function to run on every row in the result
 })
 
-const knownEmails = query(sql`SELECT email FROM users`, {
+const knownEmails = await query(sql`SELECT email FROM users`, {
     rowMapper: row => row.email,
 })
 ```
@@ -188,7 +187,9 @@ const knownEmails = query(sql`SELECT email FROM users`, {
 Invoked exactly like `query`, except that instead of returning an array of rows, it will return one object. If your query results in no rows, it will return a null. If your query returns more than one row, it will throw an Error. You can also use rowMapper here.
 
 ```js
-const currentUserEmail = query(sql`SELECT email FROM users WHERE id = ${currentUserId}`, {
+const currentUserEmail = await query(sql`
+    SELECT email FROM users WHERE id = ${currentUserId}
+`, {
     rowMapper: row => row.email,
 })
 
@@ -201,11 +202,14 @@ You can also run multiple queries inside of a transaction:
 
 ```js
 const result = await query.transaction(async tquery => {
-    // Inside this function, you should take care to use tquery instead of query
-    // or you may run into deadlocks.
+    // Inside this function, you should take care to use tquery 
+    // instead of query or you may run into deadlocks.
 
     // tquery behaves exactly like query (and also has tquery.one)
+    return 'myResult'
 })
+
+console.log(result) // 'myResult'
 ```
 
 ## License
