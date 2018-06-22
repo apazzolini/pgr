@@ -1,21 +1,21 @@
 const { getPool } = require('./pool.js')
 
-const execQuery = async (transport, statement, opts) => {
+const execQuery = async (transport, q, opts) => {
     const { debug, debugOnly, rowMapper } = opts
 
     if (debug || debugOnly) {
-        console.log(statement)
+        console.log(q.getStatement())
         if (debugOnly) return
     }
 
     try {
-        const res = await transport(statement)
+        const res = await transport(q.getStatement())
         const { rows } = res
         if (rowMapper) return rows.map(rowMapper)
         return rows
     } catch (e) {
         if (e.code === '42601') {
-            console.error(`QUERY ERROR: Syntax error:\n${statement}`)
+            console.error(`QUERY ERROR: Syntax error:\n${q.getStatement()}`)
         }
 
         throw e

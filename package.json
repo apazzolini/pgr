@@ -1,6 +1,6 @@
 {
     "name": "pgr",
-    "version": "0.1.4",
+    "version": "0.2.0",
     "description": "A wrapper for pg",
     "main": "src/index.js",
     "author": "Andre Azzolini (apazzolini)",

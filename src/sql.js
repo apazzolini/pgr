@@ -36,7 +36,9 @@ const format = text =>
 
 const sql = (strings, ...args) => {
     if (args.length === 0) {
-        return format(strings.join(' '))
+        return {
+            getStatement: () => format(strings.join(' ')),
+        }
     }
 
     let text = ''
@@ -57,14 +59,20 @@ const sql = (strings, ...args) => {
                 }
             }
         } else if (part && part instanceof RawExpr) {
-            text += part.str
+            if (typeof part.str.getStatement === 'function') {
+                text += part.str.getStatement()
+            } else {
+                text += part.str
+            }
         } else if (typeof part !== 'undefined') {
             text += '%L'
             values.push(part)
         }
     })
 
-    return format(pgformat(text, ...values))
+    return {
+        getStatement: () => format(pgformat(text, ...values)),
+    }
 }
 
 sql.if = (...args) => new ConditionalExpr(...args)
