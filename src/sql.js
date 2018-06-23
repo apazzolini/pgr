@@ -38,6 +38,8 @@ const sql = (strings, ...args) => {
     if (args.length === 0) {
         return {
             getStatement: () => format(strings.join(' ')),
+            getBaseStatement: () => format(strings.join(' ')),
+            getValues: () => [],
         }
     }
 
@@ -72,6 +74,8 @@ const sql = (strings, ...args) => {
 
     return {
         getStatement: () => format(pgformat(text, ...values)),
+        getBaseStatement: () => format(text),
+        getValues: () => values,
     }
 }
 

@@ -1,4 +1,5 @@
 const { sql, query, createPool, getPool } = require('./index.js')
+const getQueryId = require('./query-id.js')
 const { setupTestDb, teardownTestDb } = require('../test/helper.js')
 
 describe('query', () => {
@@ -30,6 +31,19 @@ describe('query', () => {
     test('runs a one query', async () => {
         const res = await query.one(sql`SELECT name FROM one WHERE id = ${'a'}`)
         expect(res).toEqual({ name: 'aaa' })
+    })
+
+    test('tracks metrics using base statement', async () => {
+        await query.one(sql`SELECT name FROM one WHERE id = ${'b'}`)
+        const pool = getPool('default')
+
+        expect(pool.metrics.queries).toMatchObject({
+            [getQueryId(sql`SELECT name FROM one WHERE id = ${'b'}`)]: {
+                baseStatement: 'SELECT name FROM one WHERE id = %L',
+                count: 2,
+                avgMs: expect.any(Number),
+            },
+        })
     })
 
     test('returns null for a one query that resturns zero rows', async () => {

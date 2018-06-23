@@ -10,6 +10,10 @@ const createPool = (name, config) => {
         process.exit(-1)
     })
 
+    pool.metrics = {
+        queries: {},
+    }
+
     registeredPools[name] = pool
     return true
 }

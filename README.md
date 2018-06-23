@@ -197,7 +197,7 @@ You can also run multiple queries inside of a transaction:
 
 ```js
 const result = await query.transaction(async tquery => {
-    // Inside this function, you should take care to use tquery 
+    // Inside this function, you should take care to use tquery
     // instead of query or you may run into deadlocks.
 
     // tquery behaves exactly like query (and also has tquery.one)
@@ -205,6 +205,15 @@ const result = await query.transaction(async tquery => {
 })
 
 console.log(result) // 'myResult'
+```
+
+## Metrics
+
+`pgr` stores average execution time for your queries along with the number of times the query has happened. This is done by taking the base query (pre variable insertion) and giving it an ID based on its hash. This allows aggregating metrics even if a query is executed multiple times with different arguments.
+
+```js
+const { metrics } = getPool('default')
+console.log(metrics.queries) // { [id]: { baseStatement: '...', count: 1, avgMs: 100 } }
 ```
 
 ## License
