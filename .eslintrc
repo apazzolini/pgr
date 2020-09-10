@@ -1,40 +1,32 @@
 {
-    'plugins': [
-        'jest',
-    ],
-    'extends': [
-        'airbnb-base',
-        'plugin:jest/recommended'
-    ],
-    'rules': {
-        'arrow-body-style': 0,
-        'arrow-parens': [2, 'as-needed', { 'requireForBlockBody': false }],
-        'comma-dangle': [2, 'always-multiline'],
-        'consistent-return': 0,
-        'dot-notation': 0,
-        'function-paren-newline': 0,
-        'indent': ['error', 4, { 'ignoredNodes': [ 'TemplateLiteral *' ], 'ignoreComments': true }],
-        'max-len': ['error', 110, 4, { 'ignoreUrls': true }],
-        'new-cap': 0,
-        'newline-per-chained-call': 0,
-        'no-await-in-loop': 0,
-        'no-confusing-arrow': 0,
-        'no-console': 0,
-        'no-continue': 0,
-        'no-mixed-operators': 0,
-        'no-multi-assign': 0,
-        'no-param-reassign': [2, { 'props': false }],
-        'no-plusplus': 0,
-        'no-restricted-globals': 0,
-        'no-underscore-dangle': 0,
-        'no-unused-expressions': 0,
-        'no-unused-vars': [2, { 'args': 'none' }],
-        'object-curly-newline': 0,
-        'prefer-destructuring': 0,
-        'semi': [2, 'never', { 'beforeStatementContinuationChars': 'always' }],
-    },
-    'env': {
-        'jest/globals': true,
-        'node': true,
-    },
+  "plugins":[
+    "jest",
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:jest/recommended",
+    "prettier",
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+  },
+  "rules": {
+    "no-console": "off",
+    "strict": ["error", "global"],
+    "curly": "off",
+    "no-unused-vars": [2, { "args": "none" }],
+    "no-use-before-define": "error",
+    "no-prototype-builtins": "off",
+    "prefer-const": ["error", { "destructuring": "all", "ignoreReadBeforeAssign": false }],
+
+    "import/first": "error",
+    "import/order": ["error", { "groups": [["builtin", "external", "internal"]] }],
+    "import/newline-after-import": "error",
+  },
+  "env": {
+    "jest/globals": true,
+    "node": true,
+  },
 }

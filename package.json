@@ -1,32 +1,44 @@
 {
-    "name": "pgr",
-    "version": "0.2.0",
-    "description": "A wrapper for pg",
-    "main": "src/index.js",
-    "author": "Andre Azzolini (apazzolini)",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/apazzolini/pgr.git"
-    },
-    "license": "MIT",
-    "dependencies": {
-        "dedent": "0.7.0",
-        "lodash": "4.17.10",
-        "pg": "7.4.3",
-        "pg-format": "1.0.4"
-    },
-    "scripts": {
-        "check": "npm run lint && npm run test",
-        "lint": "eslint -c .eslintrc src",
-        "test": "jest",
-        "test:watch": "jest --watch"
-    },
-    "devDependencies": {
-        "dotenv": "5.0.1",
-        "eslint": "4.19.1",
-        "eslint-config-airbnb-base": "12.1.0",
-        "eslint-plugin-import": "2.11.0",
-        "eslint-plugin-jest": "21.15.1",
-        "jest": "22.4.3"
-    }
+  "name": "pgr",
+  "version": "0.3.0",
+  "description": "A wrapper for pg",
+  "main": "src/index.js",
+  "author": "Andre Azzolini (apazzolini)",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apazzolini/pgr.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "dedent": "0.7.0"
+  },
+  "peerDependencies": {
+    "pg": "^8.3.3",
+    "pg-format": "^1.0.4"
+  },
+  "scripts": {
+    "check": "yarn run lint && yarn run test",
+    "format": "prettier --write \"src/**/*.js\"",
+    "lint": "eslint -c .eslintrc src",
+    "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "yarn run test --watch"
+  },
+  "devDependencies": {
+    "dotenv": "8.2.0",
+    "eslint": "^7.7.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^24.0.0",
+    "jest": "26.4.2",
+    "jest-environment-node": "^26.3.0",
+    "pg": "^8.3.3",
+    "pg-format": "^1.0.4",
+    "prettier": "^2.1.1",
+    "typescript": "^4.0.2"
+  },
+  "jest": {
+    "testEnvironment": "jest-environment-node",
+    "transform": {}
+  }
 }

@@ -1,33 +1,30 @@
-const { Pool } = require('pg')
+import PG from 'pg'
+
+const { Pool } = PG
 
 const registeredPools = {}
 
-const createPool = (name, config) => {
-    const pool = new Pool(config)
+export function createPool(name, config) {
+  const pool = new Pool(config)
 
-    pool.on('error', (err, client) => {
-        console.error(err, 'Unexpected error on idle client')
-        process.exit(-1)
-    })
+  pool.on('error', (err, client) => {
+    console.error(err, 'Unexpected error on idle client')
+    process.exit(-1)
+  })
 
-    pool.metrics = {
-        queries: {},
-    }
+  pool.metrics = {
+    queries: {},
+  }
 
-    registeredPools[name] = pool
-    return true
+  registeredPools[name] = pool
+  return true
 }
 
-const getPool = name => {
-    if (typeof name === 'undefined' && Object.keys(registeredPools).length === 1) {
-        [name] = Object.keys(registeredPools) // eslint-disable-line no-param-reassign
-    }
+export function getPool(name) {
+  if (typeof name === 'undefined' && Object.keys(registeredPools).length === 1) {
+    ;[name] = Object.keys(registeredPools) // eslint-disable-line no-param-reassign
+  }
 
-    if (!registeredPools[name]) throw Error(`Unknown pool [${name}]`)
-    return registeredPools[name]
-}
-
-module.exports = {
-    createPool,
-    getPool,
+  if (!registeredPools[name]) throw Error(`Unknown pool [${name}]`)
+  return registeredPools[name]
 }

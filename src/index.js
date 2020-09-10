@@ -1,12 +1,6 @@
-const pg = require('pg')
-const { createPool, getPool } = require('./pool.js')
-const sql = require('./sql.js')
-const query = require('./query.js')
+import pg from 'pg'
+import { createPool, getPool } from './pool.js'
+import sql from './sql.js'
+import query from './query.js'
 
-module.exports = {
-    pg,
-    sql,
-    query,
-    createPool,
-    getPool,
-}
+export { pg, sql, query, createPool, getPool }
